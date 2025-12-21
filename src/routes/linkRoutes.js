@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createLink } = require('../controllers/linkController');
+const { createLink, getLink } = require('../controllers/linkController');
 
 // Define the route
 router.post('/create', createLink);

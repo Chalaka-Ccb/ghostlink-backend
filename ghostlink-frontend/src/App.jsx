@@ -1,10 +1,15 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
+import CreateLink from './components/CreateLink';
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-500">
-        GhostLink Frontend 👻
-      </h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<CreateLink />} />
+      </Routes>
+    </Router>
   );
 }
 

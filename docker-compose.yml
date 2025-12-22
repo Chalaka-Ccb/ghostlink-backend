@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # 1. The Backend Service
+  api:
+    build: ./ghostlink-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=${MONGO_URI} 
+    networks:
+      - ghost-network
+
+  # 2. The Frontend Service
+  client:
+    build: ./ghostlink-frontend
+    ports:
+      - "80:80" # Maps port 80 (standard web) to the container
+    depends_on:
+      - api # Wait for backend to start first
+    networks:
+      - ghost-network
+
+# 3. Define a shared network so they can talk to each other
+networks:
+  ghost-network:
+    driver: bridge

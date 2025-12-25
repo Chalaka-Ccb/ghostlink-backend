@@ -1,15 +1,25 @@
 const express = require('express');
 const cors = require('cors');
 const linkRoutes = require('./routes/linkRoutes');
+const { getLink } = require('./controllers/linkController'); // <--- 1. Import the controller directly
+
 const app = express();
 
-// Middleware
-app.use(cors()); // Allows your React frontend to talk to this backend
-app.use(express.json()); // Allows us to parse JSON bodies (req.body)
-app.use('/api/links', linkRoutes);
-// Simple Health Check Route (To test if it works)
+app.use(cors());
+app.use(express.json());
+
+// Health Check
 app.get('/', (req, res) => {
     res.json({ message: 'GhostLink Backend is Active 👻' });
 });
 
+// API Routes (For creating links)
+app.use('/api/links', linkRoutes);
+
+// Redirection Route (For visiting links)
+// This must be AFTER the other routes so it doesn't block them
+app.get('/:shortId', getLink); // <--- 2. Add this line!
+
+
 module.exports = app;
+

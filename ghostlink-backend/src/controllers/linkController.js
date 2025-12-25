@@ -34,39 +34,51 @@ const createLink = async (req, res) => {
         res.status(500).json({ error: 'Server Error' });
     }
 };
+// Helper to check if string is a URL
+const isUrl = (string) => {
+    try { return Boolean(new URL(string)); } 
+    catch (e) { return false; }
+};
+
+// @desc    Get a link (Smart Handle: Redirect or JSON)
 const getLink = async (req, res) => {
     try {
         const { shortId } = req.params;
-
-        // 1. Find the link
         const link = await Link.findOne({ shortId });
 
-        // 2. If not found, return 404
+        // 1. Check if Link Exists
         if (!link) {
-            return res.status(404).json({ error: 'Link not found' });
+            return res.status(404).json({ error: 'Link not found or already burnt 🔥' });
         }
 
-        // 3. Check Time Expiration
+        // 2. Check Expiration (Time)
         if (link.expiresAt && new Date() > link.expiresAt) {
-            await Link.deleteOne({ _id: link._id }); // Clean up dead link
+            await Link.deleteOne({ _id: link._id });
             return res.status(410).json({ error: 'Link has expired' });
         }
 
-        // 4. Check Click Limit (The "Ghost" Logic)
-        // We increment first, then check.
+        // 3. Increment Clicks
         link.clickCount++;
         await link.save();
 
-        // If we reached the limit, destroy the link from the DB
-        if (link.clickCount >= link.maxClicks) {
+        // 4. Ghost Logic: If limit reached, delete AFTER this response
+        const isGhost = link.clickCount >= link.maxClicks;
+        if (isGhost) {
             await Link.deleteOne({ _id: link._id });
         }
 
-        // 5. Respond with the content
+        // 5. SMART RESPONSE LOGIC
+        // If it's a URL, REDIRECT the user
+        if (isUrl(link.originalContent)) {
+             return res.redirect(link.originalContent);
+        }
+
+        // If it's Text/Password, send JSON (Frontend will display it)
         res.json({
             success: true,
             originalContent: link.originalContent,
-            message: link.clickCount >= link.maxClicks ? 'Link has been destroyed (Ghost Mode)' : 'Link active'
+            isGhost: isGhost,
+            message: 'Secret fetched successfully'
         });
 
     } catch (error) {

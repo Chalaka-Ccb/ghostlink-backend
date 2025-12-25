@@ -26,10 +26,27 @@ const CreateLink = () => {
         originalContent: inputUrl,
         maxClicks: maxClicks
       });
-      setShortLink(response.data.shortUrl);
+
+      // SMART LINK GENERATION
+      // If we are "Burning" a secret text, we want the user to visit our Frontend View Page.
+      // If we are "Shortening" a URL, we want the user to hit the Backend Redirect directly.
+      const backendId = response.data.shortUrl.split('/').pop(); // Get just the ID (e.g. 'a1b2c3')
+      
+      let finalLink = '';
+      if (isBurn) {
+          // Point to Frontend "View Secret" page
+          finalLink = `${window.location.origin}/view/${backendId}`;
+      } else {
+          // Point to Backend "Redirect" route
+          finalLink = `http://localhost:5000/${backendId}`;
+      }
+
+      setShortLink(finalLink);
+    
     } catch (error) {
       console.error(error);
       alert("Backend error! Is the server running?");
+      setShortLink(response.data.shortUrl);
     } finally {
       setLoading(false);
     }

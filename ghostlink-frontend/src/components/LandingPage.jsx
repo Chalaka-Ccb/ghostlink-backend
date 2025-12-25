@@ -2,7 +2,13 @@ import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 text-center relative">
+      <nav className="absolute top-6 right-6 flex gap-4">
+        <Link to="/login" className="text-gray-300 hover:text-white font-medium">Log In</Link>
+        <Link to="/register" className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold transition">
+          Sign Up
+        </Link>
+      </nav>
       <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mb-6">
         GhostLink 👻
       </h1>

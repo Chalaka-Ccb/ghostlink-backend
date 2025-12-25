@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useSearchParams, Link } from 'react-router-dom';
 
+
 const CreateLink = () => {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'shorten'; // Default to shorten
@@ -13,6 +14,7 @@ const CreateLink = () => {
   const [inputUrl, setInputUrl] = useState('');
   const [shortLink, setShortLink] = useState('');
   const [loading, setLoading] = useState(false);
+  const [customSlug, setCustomSlug] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +26,8 @@ const CreateLink = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/links/create', {
         originalContent: inputUrl,
-        maxClicks: maxClicks
+        maxClicks: maxClicks,
+        customSlug: customSlug
       });
 
       // SMART LINK GENERATION
@@ -46,7 +49,6 @@ const CreateLink = () => {
     } catch (error) {
       console.error(error);
       alert("Backend error! Is the server running?");
-      setShortLink(response.data.shortUrl);
     } finally {
       setLoading(false);
     }
@@ -79,6 +81,24 @@ const CreateLink = () => {
               value={inputUrl}
               onChange={(e) => setInputUrl(e.target.value)}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">
+              Custom Alias (Optional)
+            </label>
+            <div className="flex">
+              <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-600 bg-gray-800 text-gray-400 text-sm">
+                ghost.link/
+              </span>
+              <input
+                type="text"
+                placeholder="my-cool-link"
+                className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-r-lg text-white focus:outline-none focus:border-blue-500 transition"
+                value={customSlug}
+                onChange={(e) => setCustomSlug(e.target.value)}
+              />
+            </div>
           </div>
 
           <button

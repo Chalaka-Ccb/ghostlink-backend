@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const linkRoutes = require('./routes/linkRoutes');
-const { getLink } = require('./controllers/linkController'); // <--- 1. Import the controller directly
+const { getLink } = require('./controllers/linkController');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -15,10 +16,9 @@ app.get('/', (req, res) => {
 
 // API Routes (For creating links)
 app.use('/api/links', linkRoutes);
-
-// Redirection Route (For visiting links)
-// This must be AFTER the other routes so it doesn't block them
-app.get('/:shortId', getLink); // <--- 2. Add this line!
+app.use('/api/auth', authRoutes); 
+app.use('/api/links', linkRoutes);
+app.get('/:shortId', getLink); 
 
 
 module.exports = app;

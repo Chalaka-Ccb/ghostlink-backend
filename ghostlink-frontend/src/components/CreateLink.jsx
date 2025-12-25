@@ -2,7 +2,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useSearchParams, Link } from 'react-router-dom';
 
-
 const CreateLink = () => {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'shorten'; // Default to shorten
@@ -12,43 +11,56 @@ const CreateLink = () => {
   const buttonColor = isBurn ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500';
 
   const [inputUrl, setInputUrl] = useState('');
+  const [customSlug, setCustomSlug] = useState(''); // Custom Name State
   const [shortLink, setShortLink] = useState('');
   const [loading, setLoading] = useState(false);
-  const [customSlug, setCustomSlug] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // LOGIC: Burn = 1 click. Shorten = 10,000 clicks (effectively infinite)
+    // 1. Calculate Max Clicks (CRITICAL FIX)
+    // If Burn Mode -> 1 Click. If Shorten Mode -> 10,000 Clicks.
     const maxClicks = isBurn ? 1 : 10000;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/links/create', {
-        originalContent: inputUrl,
-        maxClicks: maxClicks,
-        customSlug: customSlug
-      });
+      // 2. Get Token (for Dashboard)
+      const token = localStorage.getItem('token');
+      
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '' // Attach token if logged in
+        }
+      };
 
-      // SMART LINK GENERATION
-      // If we are "Burning" a secret text, we want the user to visit our Frontend View Page.
-      // If we are "Shortening" a URL, we want the user to hit the Backend Redirect directly.
-      const backendId = response.data.shortUrl.split('/').pop(); // Get just the ID (e.g. 'a1b2c3')
+      // 3. Send Data to Backend
+      const response = await axios.post(
+        'http://localhost:5000/api/links/create', 
+        {
+          originalContent: inputUrl,
+          maxClicks: maxClicks,     // <--- Ensure this is sent!
+          customSlug: customSlug    // <--- Ensure this is sent!
+        },
+        config
+      );
+
+      // 4. Generate the clickable link for the UI
+      const backendId = response.data.shortUrl.split('/').pop();
       
       let finalLink = '';
       if (isBurn) {
-          // Point to Frontend "View Secret" page
+          // Ghost Mode: Point to Frontend "View Secret" page
           finalLink = `${window.location.origin}/view/${backendId}`;
       } else {
-          // Point to Backend "Redirect" route
+          // Shorten Mode: Point to Backend "Redirect" directly
           finalLink = `http://localhost:5000/${backendId}`;
       }
 
       setShortLink(finalLink);
-    
     } catch (error) {
       console.error(error);
-      alert("Backend error! Is the server running?");
+      alert("Error: " + (error.response?.data?.error || "Server Error"));
     } finally {
       setLoading(false);
     }
@@ -69,6 +81,7 @@ const CreateLink = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Main Input */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">
               {isBurn ? 'Secret Text or Password' : 'Long URL to Shorten'}
@@ -83,6 +96,7 @@ const CreateLink = () => {
             />
           </div>
 
+          {/* Custom Slug Input (Optional) */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">
               Custom Alias (Optional)
@@ -93,7 +107,7 @@ const CreateLink = () => {
               </span>
               <input
                 type="text"
-                placeholder="my-cool-link"
+                placeholder="my-link-name"
                 className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-r-lg text-white focus:outline-none focus:border-blue-500 transition"
                 value={customSlug}
                 onChange={(e) => setCustomSlug(e.target.value)}
@@ -116,6 +130,9 @@ const CreateLink = () => {
             <div className="bg-gray-700 p-2 rounded text-white font-mono text-sm break-all select-all cursor-pointer">
               {shortLink}
             </div>
+            <p className="text-xs text-gray-500 mt-2">
+                {isBurn ? 'Copy this quickly. It will die soon.' : 'Click to test your redirect.'}
+            </p>
           </div>
         )}
       </div>

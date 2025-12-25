@@ -3,9 +3,15 @@ const crypto = require('crypto');
 
 // 1. Define the Schema
 const LinkSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Links this to the User collection
+        required: false // It's false because "Guest" users can still create links
+    },
+    // -----------------
     originalContent: {
         type: String,
-        required: true, // We can't save an empty link
+        required: true,
     },
     shortId: {
         type: String,

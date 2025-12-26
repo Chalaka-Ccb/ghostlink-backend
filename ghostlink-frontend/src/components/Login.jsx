@@ -25,7 +25,7 @@ const Login = () => {
 
       // Short delay for effect
       setTimeout(() => {
-        navigate('/app');
+        navigate('/dashboard');
       }, 1000);
 
     } catch (error) {

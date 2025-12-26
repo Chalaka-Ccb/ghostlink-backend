@@ -86,7 +86,13 @@ const getLink = async (req, res) => {
 
         // 5. Response Logic
         if (isUrl(link.originalContent)) {
-             return res.redirect(link.originalContent); // Redirect for URLs
+             // OLD WAY: Instant Redirect
+             // return res.redirect(link.originalContent); 
+
+             // NEW WAY: Send to Frontend Ad Page with the target URL attached
+             // We encodeURIComponent to ensure special characters in the URL don't break the link
+             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+             return res.redirect(`${frontendUrl}/redirect?to=${encodeURIComponent(link.originalContent)}`);
         }
 
         res.json({

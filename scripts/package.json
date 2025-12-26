@@ -1,0 +1,17 @@
+{
+  "name": "ghostlink-test-scripts",
+  "version": "1.0.0",
+  "description": "Test scripts for GhostLink application",
+  "main": "test-all.js",
+  "scripts": {
+    "test": "node test-all.js",
+    "test:signup": "node test-signup.js",
+    "test:login": "node test-login.js",
+    "test:url": "node test-url-shorten.js",
+    "test:secret": "node test-secret-encryption.js",
+    "test:dashboard": "node test-dashboard.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

@@ -67,7 +67,7 @@ Clone the repository:
 
 ```Bash
 
-git clone [https://github.com/yourusername/ghostlink.git](https://github.com/yourusername/ghostlink.git)
+git clone https://github.com/Chalaka-Ccb/ghostlink-backend.git
 cd ghostlink
 ```
 Configure Environment: Create a .env file in the root directory:
